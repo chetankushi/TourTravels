@@ -2,6 +2,7 @@ package com.beanFactory.toursTravels.controller;
 
 import com.beanFactory.toursTravels.dto.UserLoginDto;
 import com.beanFactory.toursTravels.dto.UserRegisterDto;
+import com.beanFactory.toursTravels.service.JwtService;
 import com.beanFactory.toursTravels.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class UserController {
 
     @Autowired
     AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService  jwtService;
 
     public UserController(UserServiceImpl userService) {
         this.userService = userService;
@@ -49,7 +53,7 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                return authentication.getPrincipal().toString();
+                return jwtService.generateToken(user.getUsername());
             }
         } catch (AuthenticationException ex) {
             return "Authentication failed: " + ex.getMessage();
