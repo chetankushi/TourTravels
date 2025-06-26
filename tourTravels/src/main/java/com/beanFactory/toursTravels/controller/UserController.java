@@ -5,6 +5,8 @@ import com.beanFactory.toursTravels.dto.UserRegisterDto;
 import com.beanFactory.toursTravels.service.JwtService;
 import com.beanFactory.toursTravels.service.UserServiceImpl;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class UserController {
 
+    private Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     private final UserServiceImpl userService;
 
     @Autowired
@@ -31,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegisterDto user){
+    public ResponseEntity<?> register(@RequestBody UserRegisterDto user){
         if(userService.existsByUsername(user.getUserName())){
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Username already exists");
@@ -47,7 +50,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid @RequestBody UserLoginDto user){
+    public String login(@RequestBody UserLoginDto user){
+        LOGGER.info(user.toString());
+        LOGGER.info("LOGIN");
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
