@@ -16,8 +16,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*", methods = {RequestMethod.DELETE, RequestMethod.GET, RequestMethod.POST})
 public class UserController {
 
     private Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -50,7 +54,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserLoginDto user){
+    public ResponseEntity<?> login(@RequestBody UserLoginDto user){
         LOGGER.info(user.toString());
         LOGGER.info("LOGIN");
         try {
@@ -58,12 +62,18 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(user.getUsername());
+                String token = jwtService.generateToken(user.getUsername());
+                Map<String, String> response = new HashMap<>();
+                response.put("token", token);
+                return  ResponseEntity.ok(response);
+            } else {
+              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
             }
         } catch (AuthenticationException ex) {
-            return "Authentication failed: " + ex.getMessage();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failing for unknown reason");
         }
-        return "Failing for unknown reason";
     }
 
 }

@@ -26,7 +26,7 @@ public class WebConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/register", "/auth/login").permitAll()
+                                .requestMatchers("/auth/register", "/auth/check-username", "/auth/login").permitAll()
                                 .anyRequest().authenticated()
                         )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
